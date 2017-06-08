@@ -11,5 +11,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid ""
-"Please choose the site code of your segment"
-msgstr "Bitte wähle den Sitecode deines Segments"
+"Please choose your district."
+msgstr "Bitte wähle Dein Distrikt."
+
+msgid "District"
+msgstr "Disktrikt"
