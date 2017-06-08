@@ -45,13 +45,12 @@ end
 
 function M.handle(data)
 
-	if data.site_code ~= site.site_code then
-		-- copy new site conf
-		fs.copy('/lib/gluon/site-select/' .. data.site_code .. '.json', '/lib/gluon/site.json')
-		-- store new site conf in uci currentsite
-		uci:set('currentsite', 'current', 'name', data.site_code)
-		uci:save('currentsite')
-		uci:commit('currentsite')
+	if data.district ~= site.district then
+		-- store new district in uci gluon-node-info.district.current
+		uci:set('gluon-node-info', 'district', 'district')
+		uci:set('gluon-node-info', 'district', 'current', data.district)
+		uci:save('gluon-node-info')
+		uci:commit('gluon-node-info')
 		os.execute('sh "/lib/gluon/site-upgrade"')
 	end
 end
