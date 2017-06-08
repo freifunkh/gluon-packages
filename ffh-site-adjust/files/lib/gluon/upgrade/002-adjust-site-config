@@ -55,6 +55,9 @@ site['next_node']['ip4'] = '10.' .. tostring(d['p']) .. '.0.1'
 site['next_node']['ip6'] = 'fdca:ffee:8:' .. tostring(d['p']) .. '::1'
 
 site['district'] = new_district
+site['site_code'] = new_district
+
+site['site_name'] = d['n']
 
 new_site_str = json.stringify(site)
 
