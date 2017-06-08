@@ -36,8 +36,8 @@ if d == nil then
     d={n="Leetfeld",p=127}
 end
 
-site['wifi24']['mesh']['id'] = 'ffh-mesh-' .. new_district
-site['wifi5']['mesh']['id'] = 'ffh-mesh-' .. new_district
+site['wifi24']['mesh']['id'] = 'ffh-mesh-' .. tostring(d['p'])
+site['wifi5']['mesh']['id'] = 'ffh-mesh-' .. tostring(d['p'])
 
 -- generate the remotes
 for supernode,line in pairs(site['fastd_mesh_vpn']['groups']['backbone']['peers']) do
