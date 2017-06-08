@@ -2,7 +2,7 @@
 local site = require('gluon.site_config')
 local uci = require 'luci.model.uci'
 local json = require 'luci.jsonc'
-local districts = require('districts')
+local districts = require('gluon.districts')
 
 local c = uci:cursor()
 
