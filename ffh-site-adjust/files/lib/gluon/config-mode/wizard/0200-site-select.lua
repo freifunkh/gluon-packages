@@ -25,16 +25,16 @@ end
 
 function M.section(form)
 	local s = form:section(cbi.SimpleSection, nil, 
-                i18n.translate("Please choose the site code of your segment"))
+                i18n.translate("Please choose your district."))
 		
-	local o = s:option(cbi.ListValue, "site_code", "Segment")
+	local o = s:option(cbi.ListValue, "district", i18n.translate("District"))
 	o.rmempty = false
 	o.optional = false
 
 	if uci:get_first("gluon-setup-mode", "setup_mode", "configured") == "0" then
 		o:value("")
 	else
-		o:value(site.site_code, site.site_name)
+		o:value(site.district, site.site_name)
 	end
 
 	for code, d in pairsByKeys(districts) do
