@@ -31,15 +31,8 @@ endef
 
 define Package/ffh-site-adjust/install
 	mkdir -p $(1)/etc/config/
-	mkdir -p $(1)/lib/gluon/site-select/
 	$(CP) ./files/* $(1)/
 
-	lua -e 'print(require("cjson").encode(assert(loadfile("site_config.lua")("$(GLUON_SITEDIR)/extra/mitte.conf"))))' > $(1)/lib/gluon/site-select/mitte.json
-	lua -e 'print(require("cjson").encode(assert(loadfile("site_config.lua")("$(GLUON_SITEDIR)/extra/nordstadt.conf"))))' > $(1)/lib/gluon/site-select/nordstadt.json
-	lua -e 'print(require("cjson").encode(assert(loadfile("site_config.lua")("$(GLUON_SITEDIR)/extra/suedstadt.conf"))))' > $(1)/lib/gluon/site-select/suedstadt.json
-	lua -e 'print(require("cjson").encode(assert(loadfile("site_config.lua")("$(GLUON_SITEDIR)/extra/calenberger-neustadt.conf"))))' > $(1)/lib/gluon/site-select/calenberger-neustadt.json
-	DIR=$(1) sh create-config.sh
-	
 	$(call GluonInstallI18N,ffh-site-adjust,$(1))
 endef
 
