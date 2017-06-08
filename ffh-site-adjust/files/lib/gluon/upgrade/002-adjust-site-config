@@ -1,0 +1,121 @@
+#!/usr/bin/lua
+local site = require('gluon.site_config')
+local uci = require 'luci.model.uci'
+local json = require 'luci.jsonc'
+
+local c = uci:cursor()
+
+-- we do this here to revert some magical stuff in gluon.site_config which
+-- causes troubles
+site=getmetatable(site)['__index']
+
+new_district = c:get("gluon-node-info","district", "current")
+
+-- if district not changed: exit
+if site['district'] == new_district then
+    print('nothing to do')
+    os.exit()
+end
+
+districts = {
+	hq={n="Headquarter",p=0},
+	mitte={n="Mitte",p=1},
+	calenberger-neustadt={n="Calenberger Neustadt",p=1},
+	nordstadt={n="Nordstadt",p=3},
+	suedstadt={n="Südstadt",p=4},
+	waldhausen={n="Waldhausen",p=5},
+	waldheim={n="Waldheim",p=5},
+	bult={n="Bult",p=4},
+	zoo={n="Zoo",p=1},
+	oststadt={n="Oststadt",p=1},
+	list={n="List",p=10},
+	vahrenwald={n="Vahrenwald",p=10},
+	vahrenheide={n="Vahrenheide",p=12},
+	hainholz={n="Hainholz",p=3},
+	herrenhausen={n="Herrenhausen",p=14},
+	burg={n="Burg",p=14},
+	leinhausen={n="Leinhausen",p=14},
+	ledeburg={n="Ledeburg",p=14},
+	stoecken={n="Stöcken",p=14},
+	marienwerder={n="Marienwerder",p=14},
+	nordhafen={n="Nordhafen",p=14},
+	sahlkamp={n="Sahlkamp",p=12},
+	bothfeld={n="Bothfeld",p=12},
+	lahe={n="Lahe",p=12},
+	gross-buchholz={n="Groß-Buchholz",p=25},
+	kleefeld={n="Kleefeld",p=25},
+	heideviertel={n="Heideviertel",p=25},
+	kirchrode={n="Kirchrode",p=28},
+	doehren={n="Döhren",p=5},
+	seelhorst={n="Seelhorst",p=5},
+	wuelfel={n="Wülfel",p=5},
+	mittelfeld={n="Mittelfeld",p=5},
+	linden-nord={n="Linden-Nord",p=33},
+	linden-mitte={n="Linden-Mitte",p=33},
+	linden-sued={n="Linden-Süd",p=33},
+	limmer={n="Limmer",p=33},
+	davenstedt={n="Davenstedt",p=37},
+	badenstedt={n="Badenstedt",p=37},
+	bornum={n="Bornum",p=39},
+	ricklingen={n="Ricklingen",p=39},
+	oberricklingen={n="Oberricklingen",p=39},
+	muehlenberg={n="Mühlenberg",p=39},
+	wettbergen={n="Wettbergen",p=39},
+	ahlem={n="Ahlem",p=37},
+	vinnhorst={n="Vinnhorst",p=3},
+	bemerode={n="Bemerode",p=28},
+	isernhagen-sued={n="Isernhagen-Süd",p=12},
+	brink-hafen={n="Brink-Hafen",p=3},
+	misburg-nord={n="Misburg-Nord",p=50},
+	misburg-sued={n="Misburg-Süd",p=50},
+	anderten={n="Anderten",p=50},
+	wuelferode={n="Wülferode",p=28},
+	wunstorf={n="Wunstorf",p=60},
+	steinhude={n="Steinhude",p=60},
+	neustadt={n="Neustadt",p=60},
+	springe={n="Springe",p=63}
+}
+base_port = 10000
+
+-- if district not found: choose default district and
+-- set uci value to "leetfeld"
+d = districts[new_district]
+if d == nil then
+    new_district="leetfeld"
+
+    c:set('gluon-node-info', 'district', 'district')
+    c:set('gluon-node-info', 'district', 'current', new_district)
+    c:save('gluon-node-info')
+    c:commit('gluon-node-info')
+
+    new_district = c:get("gluon-node-info","district", "current")
+
+    d={n="Leetfeld",p=127}
+end
+
+site['wifi24']['mesh']['id'] = 'ffh-mesh-' .. new_district
+site['wifi5']['mesh']['id'] = 'ffh-mesh-' .. new_district
+
+-- generate the remotes
+for supernode,line in pairs(site['fastd_mesh_vpn']['groups']['backbone']['peers']) do
+
+      for j,old in ipairs(line['remotes']) do
+              line['remotes'][j] = '"' .. supernode .. '.s.ffh.zone" port ' .. tostring(d['p'] + base_port)
+      end
+
+end
+
+site['prefix4'] = '10.' .. tostring(d['p']) .. '.0.0/16'
+site['prefix6'] = 'fdca:ffee:8:' .. tostring(d['p']) .. '::/64'
+
+site['next_node']['ip4'] = '10.' .. tostring(d['p']) .. '.0.1'
+site['next_node']['ip6'] = 'fdca:ffee:8:' .. tostring(d['p']) .. '::1'
+
+site['district'] = new_district
+
+new_site_str = json.stringify(site)
+
+file = io.open("/lib/gluon/site.json", "w")
+io.output(file)
+io.write(new_site_str)
+io.close(file)

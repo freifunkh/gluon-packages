@@ -42,9 +42,9 @@ function M.handle(data)
 		-- copy new site conf
 		fs.copy('/lib/gluon/site-select/' .. data.site_code .. '.json', '/lib/gluon/site.json')
 		-- store new site conf in uci currentsite
-                uci:set('currentsite', 'current', 'name', data.site_code)
+		uci:set('currentsite', 'current', 'name', data.site_code)
 		uci:save('currentsite')
-		uci:commit('currentsite')		
+		uci:commit('currentsite')
 		os.execute('sh "/lib/gluon/site-upgrade"')
 	end
 end
