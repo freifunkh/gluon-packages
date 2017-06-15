@@ -12,6 +12,16 @@ This package has three main functions:
 - Patch the site config regarding to the district directly on the router, so you can have a lot of different site configs without losing a lot of space.
 - By patching the `site_code` and `site_name` in the site, the district is also announced to respondd.
 
+Use the "unpatched" site conf
+-----------------------------
+
+``` shell
+cp /rom/lib/gluon/site.json /lib/gluon/
+rm /lib/gluon/upgrade/002-adjust-site-config
+/lib/gluon/site-upgrade
+reboot
+```
+
 Usage
 -----
 
