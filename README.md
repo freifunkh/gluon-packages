@@ -4,7 +4,7 @@
 
 ``` shell
 GLUON_SITE_FEEDS='hannover'
-PACKAGES_HANNOVER_REPO=https://github.com/freifunkh/gluon-packages.git
+PACKAGES_HANNOVER_REPO=https://github.com/freifunkh/ffh-packages
 ```
 
 **2. Add the modules you want to have to your ```site.mk```.**
