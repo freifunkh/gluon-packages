@@ -51,7 +51,7 @@ function M.handle(data)
 		uci:set('gluon-node-info', 'district', 'current', data.district)
 		uci:save('gluon-node-info')
 		uci:commit('gluon-node-info')
-		os.execute('sh "/lib/gluon/site-upgrade"')
+		os.execute('sh "/lib/gluon/district-changed.sh"')
 	end
 end
 

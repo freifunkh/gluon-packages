@@ -20,8 +20,9 @@ uci set gluon-node-info.district.current=${new_district}
 uci commit gluon-node-info
 
 reboot_str=''
-if [ -x /lib/gluon/site-upgrade ]; then
-	/lib/gluon/site-upgrade
+# only if district-changed.d is not empty
+if [ "$(ls -A /lib/gluon/district-changed.d)" ]; then
+	/lib/gluon/district-changed
 	reboot
 	reboot_str=' rebooting now.'
 fi
