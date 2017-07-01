@@ -19,12 +19,5 @@ uci set gluon-node-info.district=district
 uci set gluon-node-info.district.current=${new_district}
 uci commit gluon-node-info
 
-reboot_str=''
-# only if district-changed.d is not empty
-if [ "$(ls -A /lib/gluon/district-changed.d)" ]; then
-	/lib/gluon/district-changed
-	reboot
-	reboot_str=' rebooting now.'
-fi
-
-logger -s -t district-migrate "switching to district ${new_district}.${reboot_str}"
+logger -s -t district-migrate "switching to district ${new_district}."
+/lib/gluon/district-changed

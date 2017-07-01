@@ -4,3 +4,15 @@
 for script in /lib/gluon/upgrade/*; do
 	"$script"
 done
+
+# TODO: this should be exchanged by a better way, since
+#       it wont work when we switch to LEDE which uses dropbear
+#       without authorization in config mode
+
+# we use a running telnetd as indicator that we
+# are in the config mode.
+if ! ps | grep -v grep | grep telnetd > /dev/null; then
+	# we are not in config mode, so we want to reboot now
+	reboot
+	logger -s -t site-upgrade "rebooting now."
+fi
