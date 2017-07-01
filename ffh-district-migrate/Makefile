@@ -13,6 +13,7 @@ include $(GLUONDIR)/include/package.mk
 define Package/ffh-district-migrate
   SECTION:=gluon
   CATEGORY:=Gluon
+  DEPENDS:=+ffh-district-core
   TITLE:=Migrate gluon nodes to ffh-district districts by asking a http server for the right district
 endef
 

@@ -13,6 +13,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/ffh-district-site-adjust
   SECTION:=gluon
   CATEGORY:=Gluon
+  DEPENDS:=+ffh-district-core
   TITLE:=UI for changing the node-config
 endef
 
