@@ -1,32 +1,26 @@
-ffh-site-adjust
-======================
+ffh-district-site-adjust
+========================
 
-This repository contains a Gluon package to choose between different sites/districts files after flashing the image. <br>
-This does not apply to the site.mk!
+This package contains to actually patches the `site.conf` based on the district.
 
-Features
---------
+- The patching routine is [here](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-site-adjust/files/lib/gluon/upgrade/002-adjust-site-config).
+- It also it also provides a [district-changed.d/](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-site-adjust/files/lib/gluon/district-changed.d/site-upgrade)-script to react to updates
+  properly.
 
-This package has three main functions:
-- Add a dropdown field for the districts to the main page of the config mode.
-- Patch the site config regarding to the district directly on the router, so you can have a lot of different site configs without losing a lot of space.
-- By patching the `site_code` and `site_name` in the site, the district is also announced to respondd.
+For more information, see the [ffh-district-core](https://github.com/freifunkh/ffh-packages/tree/master/ffh-district-core)
+or [ffh-district-migrate](https://github.com/freifunkh/ffh-packages/tree/master/ffh-district-migrate) packages.
 
-Use the "unpatched" site conf
------------------------------
+Hacks:
+------
+
+**Use the original site.conf without changes:**
 
 ``` shell
 cp /rom/lib/gluon/site.json /lib/gluon/
 rm /lib/gluon/upgrade/002-adjust-site-config
-/lib/gluon/site-upgrade
+/lib/gluon/district-changed.sh
 reboot
 ```
 
-Usage
------
-
-```
-uci show gluon-node-info.district.current
-```
 
 ```/lib/gluon/site-upgrade``` triggers all scripts below ```/lib/gluon/upgrade/*``` including ```002-adjust-site-config```, which writes an adjusted version of ```/lib/gluon/site.json```.
