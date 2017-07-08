@@ -20,4 +20,4 @@ uci set gluon-node-info.district.current=${new_district}
 uci commit gluon-node-info
 
 logger -s -t district-migrate "switching to district ${new_district}."
-/lib/gluon/district-changed
+/lib/gluon/district-changed.sh
