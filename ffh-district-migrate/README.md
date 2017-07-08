@@ -57,13 +57,6 @@ else:
 Internals
 ---------
 
-**Changing the district manually:**
-``` shell
-uci set gluon-node-info.district.current='leetfeld' # use the short identifier here
-uci commit gluon-node-info
-/lib/gluon/district-changed.sh
-```
-
 For the short identifiers, see [here](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-core/files/usr/lib/lua/gluon/districts.lua).
 
 **Path of the installed cronjob file:**

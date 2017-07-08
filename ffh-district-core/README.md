@@ -103,3 +103,56 @@ This has the advantage, that we do not need to store a `site.conf` for each
 district on the router, which saves a lot of space. Maybe using compression would
 do the same job, but we decided to use this
 [patching mechanism](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-site-adjust/files/lib/gluon/upgrade/002-adjust-site-config).
+
+
+Features
+--------
+
+The packages `ffh-district-*` have the following main functions:
+- Add a dropdown field for the districts to the main page of the config mode.
+- Patch the site config regarding to the district directly on the router, so
+  you can have a lot of different site configs without losing a lot of space.
+- The district is announced via respondd at the nodeinfo section.
+- A migration strategy from the point where no router has a `district` set yet.
+
+
+Useful stuff
+------------
+
+**show the current district:**
+``` shell
+uci show gluon-node-info.district.current
+```
+
+**Changing the district manually:**
+``` shell
+uci set gluon-node-info.district.current='leetfeld' # use the short identifier here
+uci commit gluon-node-info
+/lib/gluon/district-changed.sh
+```
+
+For the short identifiers, see [here](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-core/files/usr/lib/lua/gluon/districts.lua).
+
+**Asking a node for it's district via respondd:**
+
+``` shell
+gluon-neighbour-info -r nodeinfo -p 1001 -d ::1 -t 0.2 | tr -s "," "\n" | grep district
+```
+
+List of important files
+-----------------------
+
+This is a flat overview of the most important files in the three packages. To
+help other communities to adapt our package, all relevant files are marked with
+asterisk (\*) after their name/description here.
+
+1. [dropdown for config mode](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-core/files/lib/gluon/config-mode/wizard/0200-site-adjust.lua)
+2. [district config](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-core/files/usr/lib/lua/gluon/districts.lua)\*\*
+3. [respondd provider](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-core/src/respondd.c)
+4. [migration script](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-migrate/files/lib/gluon/district-migrate)\*
+5. [handler to call the patching process](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-site-adjust/files/lib/gluon/district-changed.d/site-upgrade)
+6. [patching the site.conf](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-site-adjust/files/lib/gluon/upgrade/002-adjust-site-config)\*\*
+
+\* only a small Hannover related information (look for: `http://web.ffh.zone/migrate/`)
+
+\*\* a lot of Hannover related information
