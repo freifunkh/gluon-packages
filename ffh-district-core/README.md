@@ -152,6 +152,8 @@ asterisk (\*) after their name/description here.
 4. [migration script](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-migrate/files/lib/gluon/district-migrate)\*
 5. [handler to call the patching process](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-site-adjust/files/lib/gluon/district-changed.d/site-upgrade)
 6. [patching the site.conf](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-site-adjust/files/lib/gluon/upgrade/002-adjust-site-config)\*\*
+7. [the other readme1](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-migrate/README.md)
+8. [the other readme2](https://github.com/freifunkh/ffh-packages/blob/master/ffh-district-site-adjust/README.md)
 
 \* only a small Hannover related information (look for: `http://web.ffh.zone/migrate/`)
 
