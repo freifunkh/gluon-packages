@@ -12,7 +12,7 @@ So there are now two choices:
 1. Every router owner has to set the ```district``` manually
 2. We migrate the routers centralized by an upgrade process
 
-We decided to do the second choice and migrate the routers
+We decided to opt for the second choice and migrate the routers
 using this helper package. It currently queries
 ```http://web.ffh.zone/migrate/${node_id}``` and the webserver
 returns the new district as plain ascii.
