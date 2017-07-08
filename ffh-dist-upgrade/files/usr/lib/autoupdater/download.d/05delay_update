@@ -10,7 +10,7 @@ while true; do
 	response=$(echo -n "CHALLENGE:$challenge" | nc $addr 12345)
 
 	if echo -n "$challenge" | ecdsaverify -p $public -s "$response"; then
-		echo -n "UPDATE:$challenge" | nc $addr 12345 || continue # if you can't report, that you' are updating now
+		echo -n "UPDATE:$challenge" | nc $addr 12345 || continue # if you can't report, that you're updating now
 		echo "UPDATE NOW!"
 		exit 0;
 	else

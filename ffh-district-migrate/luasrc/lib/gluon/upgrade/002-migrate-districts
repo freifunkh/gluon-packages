@@ -1,6 +1,6 @@
 #!/usr/bin/lua
 
--- ask for a district updrade hourly. the minute is chosen randomly
+-- ask for a district upgrade hourly. the minute is chosen randomly
 local minute = math.random(0, 59)
 
 local f = io.open('/usr/lib/micron.d/migrate-districts', 'w')

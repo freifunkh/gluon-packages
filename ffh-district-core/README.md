@@ -2,17 +2,17 @@ The idea
 ========
 
 As our mesh network in Hannover is becomming greater and greater, we get issues
-with the "ground noise". All routers are announcing their routing information
+with the "ground noise" (noise floor). All routers are announcing their routing information
 periodically every 10 seconds, which leads to a lot of packets. Furthermore since
 the network is a layer 2 network we have a lot of ARP and ICMPv6 traffic to
-resolve the IP-addresses into mac addresses. Currently there is no chance
+resolve the IP-addresses into mac addresses. Currently there is no chance to
 establish a VPN tunnel from a DSL 2000 line, without blocking the whole line (
 even if you have no real payload traffic).
 
 So we need to introduce a new concept. There are already some existing
 approaches e.g. [hoodselector](https://github.com/freifunk-gluon/gluon/pull/997)
 and [site-select](https://github.com/freifunk-gluon/gluon/pull/1003). But both
-are not ideal for our needs yet. But maybe we should define our needs first.
+are not ideal for our needs, yet. But maybe we should define our needs first.
 
 Our needs in short words:
 1. low complexity
@@ -20,11 +20,11 @@ Our needs in short words:
 3. automatic segment switching is not so important
 
 The first requirement kicks out the hoodselector, as it has a rather complex
-state machine to ensure that no connection between the segments (in their
+state machine to ensure no mesh connection between the segments (in their
 usage called "hoods"). A cool feature of the hoodselector is, that a router
 automatically switches it's segment, when there is a neighbour router having
-an other segment. But in our oppionion, this is not important enough to justify
-such a complex software for this feature. So went on and looked for another
+an other segment. But in our opinion, this is not important enough to justify
+such a complex software for this feature. So we went on and looked for another
 approach.
 
 Next we found the site-select package which allows to bake multiple segment
@@ -47,7 +47,7 @@ To sum up, we have two concepts:
 - **district**: actually a city district, an outside location, or maybe also a
   subcommunity using our infrastructure. This information is mandatory for each
   router.
-- **segment**: multiple districts are summed up into a segment. Routers in the
+- **segment**: multiple districts are taken together into a segment. Routers in the
   same segment are able to mesh with each other (so have the same mesh SSID,
   network range, ...)
 
@@ -84,17 +84,17 @@ package.
 
 **2nd phase: propagating the segments**
 
-For now all routers should have a district assigned, but no actual change to the
-mesh happened. The transition is a delicate thing, since the router which once
+For now all routers should have a district assigned, but to the mesh no actual change happened.
+The transition is a delicate thing, since the router which once
 changed its district is no longer able to mesh with the one not yet migrated. So
-if the uplink router changes it's district, the mesh only routers need another
+if the uplink router changes it's district, the mesh-only routers need another
 way to receive their firmware upgrade.
 
 This is where the [ffho-autoupdater-wifi-fallback](https://git.c3pb.de/freifunk-pb/ffho-packages/tree/master/ffho/ffho-autoupdater-wifi-fallback)
 comes into play. With this package the router may download its firmware image
 via the client network, when there is no mesh network to reach the update server.
-So the mesh only routers can connect to the client network of the other routers,
-which already have updated their firmware and no router should be left.
+So the mesh-only routers can connect to the client network of the other routers,
+which already have updated their firmware and no router should be left behind.
 
 The actual **segment** magic is done by the
 [ffh-district-site-adjust](https://github.com/freifunkh/ffh-packages/tree/master/ffh-district-site-adjust)
