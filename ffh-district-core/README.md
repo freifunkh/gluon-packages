@@ -36,17 +36,18 @@ probably most of the routers will end up in the default district. But this is
 just a minor issue.
 
 The other (greater) issue is, that our idea is to provide a diverse dropdown, so
-the user can choose between our 52 districts and some outside locations. Not
-each of those districts should be in another segment (or "layer 2 segment"). At
-least not yet. So we begin with 9 or 10 segments (hopefully each including about
-100 routers), but we also have a finer graduated information for each router
-if we want to split again. This is actually not very easy, because not every
-router provides its geo location.
+the user can choose between our 52 districts and some outside locations. Multiple
+*districts* form one (layer 2) *segment*. So nearly no district will get it's own
+layer 2 segment. At least not yet. So we begin with 9 or 10 segments (hopefully 
+each including about 100 routers), but we directly store a fine graduated
+information in form of the district for each router. So if we want to split again,
+we simply need to change the association between districts and segments, introducing
+more segments than before.
 
 To sum up, we have two concepts:
 - **district**: actually a city district, an outside location, or maybe also a
   subcommunity using our infrastructure. This information is mandatory for each
-  router.
+  router (in contrast to geo coordinates).
 - **segment**: multiple districts are taken together into a segment. Routers in the
   same segment are able to mesh with each other (so have the same mesh SSID,
   network range, ...)
