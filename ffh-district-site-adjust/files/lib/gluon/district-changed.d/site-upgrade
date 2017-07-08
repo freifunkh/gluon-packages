@@ -1,18 +1,18 @@
 #!/bin/sh
-#this script is the same as zzz-gluon-upgrade
 
+# /lib/gluon/upgrade/0200-site-adjust.lua actually patches the site.conf
+# we need to trigger all scripts in /lib/gluon/upgrade/*
+# since they depend on the site.conf.
 for script in /lib/gluon/upgrade/*; do
 	"$script"
 done
 
-# TODO: this should be exchanged by a better way, since
-#       it wont work when we switch to LEDE which uses dropbear
-#       without authorization in config mode
-
-# we use a running telnetd as indicator that we
+# we use an existing br-setup as indicator that we
 # are in the config mode.
-if ! ps | grep -v grep | grep telnetd > /dev/null; then
-	# we are not in config mode, so we want to reboot now
+if ! ip link show br-setup 2>/dev/null 1>/dev/null; then
+	# since this script is also called by luci (aka gluon-web), it's
+	# important that we do not reboot in this case. we ensure
+	# this by not rebooting in config mode at all.
 	reboot
 	logger -s -t site-upgrade "rebooting now."
 fi
