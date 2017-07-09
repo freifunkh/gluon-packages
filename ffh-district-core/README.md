@@ -1,12 +1,12 @@
 The idea
 ========
 
-As our mesh network in Hannover is becomming greater and greater, we get issues
+As our mesh network in Hannover is becomming bigger and bigger, we get issues
 with the "ground noise" (noise floor). All routers are announcing their routing information
 periodically every 10 seconds, which leads to a lot of packets. Furthermore since
 the network is a layer 2 network we have a lot of ARP and ICMPv6 traffic to
 resolve the IP-addresses into mac addresses. Currently there is no chance to
-establish a VPN tunnel from a DSL 2000 line, without blocking the whole line (
+establish a VPN tunnel with a DSL 2000 line, without blocking the whole line (
 even if you have no real payload traffic).
 
 So we need to introduce a new concept. There are already some existing
@@ -31,11 +31,11 @@ Next we found the site-select package which allows to bake multiple segment
 configs (`site.conf`) files into the image and chose one of them in a dropdown
 in the config mode. This implies you always have to reboot your router to change
 the segment, but this should be okay for us. But this package has also some
-issues for us. First of all the dropdown is located in the expert mode, so
+issues for us. First of all the dropdown menu is located in the expert mode, so
 probably most of the routers will end up in the default district. But this is
 just a minor issue.
 
-The other (greater) issue is, that our idea is to provide a diverse dropdown, so
+The other (bigger) issue is, that our idea is to provide a diverse dropdown, so
 the user can choose between our 52 districts and some outside locations. Multiple
 *districts* form one (layer 2) *segment*. So nearly no district will get it's own
 layer 2 segment. At least not yet. So we begin with 9 or 10 segments (hopefully 
@@ -88,7 +88,7 @@ package.
 For now all routers should have a district assigned, but to the mesh no actual change happened.
 The transition is a delicate thing, since the router which once
 changed its district is no longer able to mesh with the one not yet migrated. So
-if the uplink router changes it's district, the mesh-only routers need another
+if the uplink router changes it's district, the mesh-only routers behind it need another
 way to receive their firmware upgrade.
 
 This is where the [ffho-autoupdater-wifi-fallback](https://git.c3pb.de/freifunk-pb/ffho-packages/tree/master/ffho/ffho-autoupdater-wifi-fallback)
