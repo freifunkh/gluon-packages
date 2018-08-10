@@ -3,7 +3,7 @@
 uci show gluon.core.domain
 retVal=$?
 
-uci show gluon.core.domain | grep -i legacy
+uci show gluon.core.domain | grep -vi legacy
 retVal2=$?
 
 if [ $retVal -ne 0 -o $retVal2 -ne 0 ]; then
