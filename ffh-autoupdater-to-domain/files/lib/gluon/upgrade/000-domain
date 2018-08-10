@@ -1,4 +1,12 @@
 #!/bin/sh
 
-uci set gluon.core.domain='nordstadt'
-uci commit gluon.core.domain
+uci show gluon.core.domain
+retVal=$?
+
+uci show gluon.core.domain | grep -i legacy
+retVal2=$?
+
+if [ $retVal -ne 0 -o $retVal2 -ne 0 ]; then
+  uci set gluon.core.domain='nordstadt'
+  uci commit gluon.core.domain
+fi
