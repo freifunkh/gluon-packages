@@ -1,4 +1,5 @@
 #!/usr/bin/lua
+local public = "52ea839a5d105f1e4e4558f02a934bb04eb45c117c761a6166b5f02a0f98332e"
   
 local devurandom = io.open("/dev/urandom","rb")
 local b1,b2 = devurandom:read(2):byte(1,2)
@@ -25,7 +26,25 @@ local currentdomain=uci:get("gluon","core","domain")
 local nodeid = require('gluon.util').node_id()
 
 local url=directorurl .. nodeid
-local manseg = io.popen("wget -q -O - '" .. url .. "'"):read('*a')
+local response = io.popen("wget -q -O - '" .. url .. "'"):read('*a')
+local manseg
+local signature
+manseg, signature = response:match("(.-)\n.+\n(.-)\n")
+if (manseg == nil or signature == nil) then
+	io.write("Servers answer is weird. Aborting.\n")
+	do return end
+end
+
+local tempdomainfile = io.popen("mktemp"):read('*a'):match("(.-)\n.*")
+os.execute("echo -n " .. manseg .. " > " .. tempdomainfile)
+local returncode = io.popen("ecdsaverify -s " .. signature .. " -p " .. public .. " " .. tempdomainfile .. " && echo -n true || echo -n false"):read('*a')
+os.execute("rm " .. tempdomainfile)
+
+if (returncode ~= "true") then
+	io.write("Signature mismatch. Exiting.\n")
+	do return end
+end
+
 io.write('Current Domain: ' .. currentdomain .. '\nNodeID: ' .. nodeid .. '\nRequested Domain: ' .. manseg .. '\n')
 if (manseg ~= "" or currentdomain=="ref" ) then
   newseg = manseg

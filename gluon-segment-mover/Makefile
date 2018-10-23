@@ -11,7 +11,7 @@ define Package/gluon-segment-mover
   SECTION:=gluon
   CATEGORY:=Gluon
   TITLE:=Segment Mover
-  DEPENDS:=+gluon-core +micrond
+  DEPENDS:=+gluon-core +micrond +ecdsautils
 endef
 
 define Build/Prepare
