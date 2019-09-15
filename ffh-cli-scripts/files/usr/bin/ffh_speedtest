@@ -1,0 +1,72 @@
+#!/bin/sh
+
+cpu_measure () {
+	stat=$(cat /proc/stat | grep cpu\ )
+
+	export cpu_all2=$cpu_all
+	export cpu_no_idle2=$cpu_no_idle
+
+	export cpu_all=$(echo "$stat" | awk -F ' ' -e '{ print $2+$3+$4+$5+$6+$7+$8 }')
+	export cpu_no_idle=$(echo "$stat" | awk -F ' ' -e '{ print $2+$3+$4+$6+$7+$8 }')
+}
+
+cpu_results() {
+	echo $(echo "print(math.floor(100*($cpu_no_idle2 - $cpu_no_idle) / ($cpu_all2 - $cpu_all)))" | lua)
+}
+
+cpu_count() {
+	cat /proc/stat | grep cpu\\d | wc -l
+}
+
+get_mbps() {
+	bps=$(jsonfilter -e "@.end.streams[0].receiver.bits_per_second")
+	echo "print(math.floor($bps/1024/1024))" | lua
+}
+
+test() {
+	cpu_measure
+	res=$(iperf3 -c $1 -J)
+	exitcode=$(echo $?)
+	cpu_measure
+
+	if [ $exitcode -ne 0 ]; then
+		echo $1: failed to connect
+		return
+	fi
+
+	echo $1: mbits_per_second: $(echo "$res" | get_mbps) Mbit/s \(cpus: $(cpu_count), cpu: $(cpu_results) %\)
+}
+
+if ! [ -f /usr/bin/iperf3 ]; then
+	echo iperf3 is not installed! install it using:
+	echo
+	echo opkg update
+	echo opkg install iperf3
+	echo
+
+	exit 1
+fi
+
+supernode_ips=$(gluon-show-site | jsonfilter -e '@.dns.servers[*]')
+
+echo NODEINFO
+echo ========
+echo hostname: $(uci get system.@system[0].hostname)
+echo timestamp: $(date -R)
+echo domain: $(uci get gluon.core.domain)
+echo domain_id: $(gluon-show-site | jsonfilter -e '@.hide_domain[0]')
+echo model: $(jsonfilter -i /etc/board.json -e '@.model.name')
+cat /proc/cpuinfo | grep "MHz" | tr -d ' ' | cut -d ':' -f 2 | awk -e '{ printf "cpu %02d: %d MHz\n", NR, $1 }'
+echo
+
+echo "BATMAN NEIGHBOURS"
+echo "================="
+batctl n -H
+echo
+
+echo "SPEEDTEST RESULTS"
+echo "================="
+
+for ip in $supernode_ips; do
+	test $ip
+done

@@ -1,0 +1,40 @@
+#!/bin/sh
+
+if [ $# -lt 1 ]; then
+	echo "USAGE: $0 sn01     <- this only activates sn01"
+	echo "       $0 sn       <- this activates all supernodes"
+
+	exit 1;
+fi
+
+all=$(uci show fastd | grep mesh_vpn_backbone_peer_ | grep enabled)
+
+echo "BEFORE:"
+echo "======="
+echo "$all"
+
+cmd=$(echo "$all" | sed 's_^_set _' | sed "s_='1'_='0'_")
+
+echo "$cmd" | uci batch
+
+cmd=$(echo "$all" | sed 's_^_set _' | sed "s_='0'_='1'_" | grep $1)
+
+echo "$cmd" | uci batch
+
+echo
+
+
+after=$(uci show fastd | grep mesh_vpn_backbone_peer_ | grep enabled)
+
+echo "AFTER:"
+echo "======"
+echo "$after"
+
+echo
+if [ "$all" != "$after" ]; then
+	echo Config changed. Uci commit. Restarting fastd.
+	uci commit fastd
+	/etc/init.d/fastd restart
+else
+	echo Config unchanged.
+fi

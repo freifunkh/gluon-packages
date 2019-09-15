@@ -1,0 +1,36 @@
+#!/bin/sh
+
+old=$(uci get fastd.mesh_vpn_backbone.peer_limit)
+
+if [ $old -gt 1 ]; then
+	old_status=disabled
+else
+	old_status=enabled
+fi
+
+echo Peerlimit was $old_status
+
+if [ $# -lt 1 ] || [ "$1" != "enabled" -a "$1" != "disabled" ]; then
+	echo
+	echo "USAGE: $0 disabled     <- disable peer limit"
+	echo "       $0 enabled      <- activate peer limit"
+
+	exit 1;
+fi
+
+if [ "$1" == "$old_status" ]; then
+	echo "Noting to do. Exiting."
+	exit 0;
+fi
+
+if [ "$1" == "enabled" ]; then
+	new=1
+else
+	new=99
+fi
+
+uci set fastd.mesh_vpn_backbone.peer_limit=${new}
+
+echo Config changed. Uci commit. Restarting fastd.
+uci commit fastd
+/etc/init.d/fastd restart
