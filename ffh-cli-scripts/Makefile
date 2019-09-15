@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/ffh-cli-scripts
   SECTION:=gluon
   CATEGORY:=Gluon
-  TITLE:=A framework to delay the node update until a remote command is given.
+  TITLE:=Custom scripts used in Freifunk Hannover
   DEPENDS:=+gluon-core
 endef
 
