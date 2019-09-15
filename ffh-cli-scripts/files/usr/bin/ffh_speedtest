@@ -25,7 +25,7 @@ get_mbps() {
 
 test() {
 	cpu_measure
-	res=$(iperf3 -c $1 -J)
+	res=$(iperf3 -c $1 -J -R)
 	exitcode=$(echo $?)
 	cpu_measure
 
