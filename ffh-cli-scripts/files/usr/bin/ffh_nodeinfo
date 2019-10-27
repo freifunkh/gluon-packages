@@ -1,0 +1,44 @@
+#!/bin/sh
+
+nodeinfo=$(gluon-neighbour-info -d ::1 -p 1001 -r nodeinfo -c 1)
+statistics=$(gluon-neighbour-info -d ::1 -p 1001 -r statistics -c 1)
+
+get() {
+	echo "$nodeinfo" | jsonfilter -e "@.$1"
+}
+
+get_bool() {
+	res=$(echo "$nodeinfo" | jsonfilter -e "@.$1")
+	if [ "$res" == "true" ]; then
+		echo $2
+	else
+		echo $3
+	fi
+}
+
+stat() {
+	echo "$statistics" | jsonfilter -e "@.$1"
+}
+
+
+cat <<EOF
+
+     hostname: $(get hostname)
+      node_id: $(get node_id)
+        owner: $(get owner.contact)
+     location: lat=$(get location.latitude) lon=$(get location.longitude)
+        model: $(get hardware.model)
+     
+  autoupdater: $(get_bool software.autoupdater.enabled enabled disabled), branch: $(get software.autoupdater.branch)
+        fastd: $(get_bool software.fastd.enabled enabled disabled)
+     firmware: $(get software.firmware.release)
+       domain: $(get system.domain_code)
+
+ fastd pubkey: $(/etc/init.d/fastd show_key mesh_vpn)
+
+ wifi clients: $(grep -cEo "\[.*W.*\]+" /sys/kernel/debug/batman_adv/bat0/transtable_local)
+
+  mesh on lan: $(get_bool network.mesh_lan.disabled active no)
+  mesh on wan: $(get_bool network.mesh_wan.disabled active no)
+
+EOF
