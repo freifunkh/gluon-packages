@@ -1,13 +1,25 @@
 #!/bin/sh
 
 mesh_ifs=$(batctl if | cut -d : -f 1 | grep -v "primary0")
+node_id=$(cat /lib/gluon/core/sysconfig/primary_mac | tr -d ':')
 
 all_res=""
 
 for iface in $mesh_ifs; do
-	echo ${iface}:
-	echo ${iface}: | sed 's_._-_g'
-	res=$(gluon-neighbour-info -d ff02::2:1001 -p 1001 -r nodeinfo -i ${iface} -t 0.1)
+	suffix=""
+	if [ -d /sys/class/net/${iface}/wireless ]; then
+		identifier=$(echo -n "${iface}" | tail -c 1)
+		hwmode=$(uci get wireless.radio${identifier}.hwmode)
+		case "$hwmode" in
+			11a) suffix=" (5 GHz)";;
+			11g) suffix=" (2.4 GHz)";;
+			?) suffix=" (unknown wifi standard)";;
+		esac
+	fi
+	name="${iface}${suffix}"
+	echo "${name}:"
+	echo "${name}:" | sed 's_._-_g'
+	res=$(gluon-neighbour-info -d ff02::2:1001 -p 1001 -r nodeinfo -i ${iface} -t 0.1 | grep -v "${node_id}")
 	echo ${res} | jsonfilter -a -e '@.*.hostname'
 	all_res=$(echo "${all_res}"; echo "${res}")
 	echo
