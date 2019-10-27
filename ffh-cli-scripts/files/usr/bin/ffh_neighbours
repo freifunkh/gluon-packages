@@ -1,0 +1,23 @@
+#!/bin/sh
+
+mesh_ifs=$(batctl if | cut -d : -f 1 | grep -v "primary0")
+
+all_res=""
+
+for iface in $mesh_ifs; do
+	echo ${iface}:
+	echo ${iface}: | sed 's_._-_g'
+	res=$(gluon-neighbour-info -d ff02::2:1001 -p 1001 -r nodeinfo -i ${iface} -t 0.1)
+	echo ${res} | jsonfilter -a -e '@.*.hostname'
+	all_res=$(echo "${all_res}"; echo "${res}")
+	echo
+done
+
+default_mac=$(batctl gwl | grep -e '^*' | head -c 43 | tail -c 17)
+default_if=$(batctl gwl | grep -e '^*' | cut -d [ -f 2 | cut -d ] -f 1)
+default_tq=$(batctl gwl | grep -e '^*' | head -c 24 | tail -c 3 | tr -d ' ')
+default_host=$(echo "${all_res}" | grep "${default_mac}" | jsonfilter -a -e '@.*.hostname')
+
+echo NEXTHOP TO DHCP GATEWAY:
+echo ========================
+echo "${default_host} (${default_if}, tq: ${default_tq})"
