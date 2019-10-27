@@ -24,17 +24,19 @@ get_mbps() {
 }
 
 test() {
+	echo -n $1:
+
 	cpu_measure
 	res=$(iperf3 -c $1 -J -R)
 	exitcode=$(echo $?)
 	cpu_measure
 
 	if [ $exitcode -ne 0 ]; then
-		echo $1: failed to connect
+		echo failed to connect
 		return
 	fi
 
-	echo $1: mbits_per_second: $(echo "$res" | get_mbps) Mbit/s \(cpus: $(cpu_count), cpu: $(cpu_results) %\)
+	echo mbits_per_second: $(echo "$res" | get_mbps) Mbit/s \(cpus: $(cpu_count), cpu: $(cpu_results) %\)
 }
 
 if ! [ -f /usr/bin/iperf3 ]; then
