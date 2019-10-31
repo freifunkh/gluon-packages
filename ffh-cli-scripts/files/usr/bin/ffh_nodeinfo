@@ -9,15 +9,24 @@ get() {
 
 get_bool() {
 	res=$(echo "$nodeinfo" | jsonfilter -e "@.$1")
-	if [ "$res" == "true" ]; then
-		echo $2
+	bool_to_text "$res" $2 $3
+}
+
+bool_to_text() {
+	if [ "$1" == "true" -o "$1" == "1" ]; then
+		echo "${2}"
 	else
-		echo $3
+		echo "${3}"
 	fi
 }
 
 stat() {
 	echo "$statistics" | jsonfilter -e "@.$1"
+}
+
+uci_bool() {
+	res=$(uci get $1 2> /dev/null)
+	bool_to_text "$res" "$2" "$3"
 }
 
 
@@ -36,9 +45,15 @@ cat <<EOF
 
  fastd pubkey: $(/etc/init.d/fastd show_key mesh_vpn)
 
- wifi clients: $(grep -cEo "\[.*W.*\]+" /sys/kernel/debug/batman_adv/bat0/transtable_local)
-
   mesh on lan: $(get_bool network.mesh_lan.disabled active no)
   mesh on wan: $(get_bool network.mesh_wan.disabled active no)
 
 EOF
+
+for radio in $(uci show wireless | grep -e ^wireless.radio | cut -d '.' -f 2 | grep -v wifi-device | uniq); do
+	echo " wifi channel: "$(uci get wireless.${radio}.channel)$(uci_bool gluon-core.@wireless[0].preserve_channels " (preserved)" "")
+done
+
+echo
+echo " wifi clients: $(grep -cEo "\[.*W.*\]+" /sys/kernel/debug/batman_adv/bat0/transtable_local)"
+echo
