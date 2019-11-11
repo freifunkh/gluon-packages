@@ -50,7 +50,7 @@ cat <<EOF
 
 EOF
 
-for radio in $(uci show wireless | grep -e ^wireless.radio | cut -d '.' -f 2 | grep -v wifi-device | uniq); do
+for radio in $(uci show wireless 2> /dev/null | grep -e ^wireless.radio | cut -d '.' -f 2 | grep -v wifi-device | uniq); do
 	echo " wifi channel: "$(uci get wireless.${radio}.channel)$(uci_bool gluon-core.@wireless[0].preserve_channels " (preserved)" "")
 done
 
