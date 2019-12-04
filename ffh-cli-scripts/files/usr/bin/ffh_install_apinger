@@ -47,7 +47,8 @@ fi
 
 apinger -g /tmp/apinger/ -l /apinger > /lib/gluon/status-page/www/cgi-bin/apinger
 chmod +x /lib/gluon/status-page/www/cgi-bin/apinger
-ln -s /tmp/apinger /lib/gluon/status-page/www/
+
+[ -L /lib/gluon/status-page/www/apinger ] || ln -s /tmp/apinger /lib/gluon/status-page/www/
 
 if ! grep /tmp/apinger /etc/init.d/apinger>/dev/null; then
 	sed -i "s:service_start:mkdir -p /tmp/apinger;service_start:" /etc/init.d/apinger
