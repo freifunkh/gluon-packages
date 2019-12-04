@@ -1,0 +1,56 @@
+#!/bin/sh
+
+[ -f /var/opkg-lists/openwrt_base ] || opkg update
+[ -f /usr/sbin/apinger ] || opkg install apinger rrdtool1 rrdcgi1
+
+if ! grep ffh_generated /etc/apinger.conf > /dev/null; then
+cat>/etc/apinger.conf<<EOF
+# ffh_generated
+
+user "nobody"
+group "nogroup"
+
+status {
+	file "/tmp/apinger.status"
+	interval 5m
+}
+
+rrd interval 30s;
+
+target default {
+	## How often the probe should be sent
+	interval 1s
+
+	avg_delay_samples 10
+	avg_loss_samples 50
+	avg_loss_delay_samples 20
+
+	## Location of the RRD
+	rrd file "/tmp/apinger-%t.rrd"
+}
+
+target "fdca:ffee:8:18::a001" {
+	description "sn10";
+}
+
+target "fdca:ffee:8:18::9001" {
+	description "sn09";
+}
+
+target "fdca:ffee:8:18::1001" {
+        description "sn01";
+}
+
+
+EOF
+fi
+
+apinger -g /tmp/apinger/ -l /apinger > /lib/gluon/status-page/www/cgi-bin/apinger
+chmod +x /lib/gluon/status-page/www/cgi-bin/apinger
+ln -s /tmp/apinger /lib/gluon/status-page/www/
+
+if ! grep /tmp/apinger /etc/init.d/apinger>/dev/null; then
+	sed -i "s:service_start:mkdir -p /tmp/apinger;service_start:" /etc/init.d/apinger
+fi
+
+/etc/init.d/apinger restart
