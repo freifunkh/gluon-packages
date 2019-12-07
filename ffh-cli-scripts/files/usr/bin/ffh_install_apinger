@@ -1,7 +1,9 @@
 #!/bin/sh
 
-[ -f /var/opkg-lists/openwrt_base ] || opkg update
-[ -f /usr/sbin/apinger ] || opkg install apinger rrdtool1 rrdcgi1
+if ! [ -f /usr/sbin/apinger ]; then
+        [ -f /var/opkg-lists/openwrt_base ] || opkg update
+        opkg install apinger rrdtool1 rrdcgi1
+fi
 
 if ! grep ffh_generated /etc/apinger.conf > /dev/null; then
 cat>/etc/apinger.conf<<EOF
