@@ -27,7 +27,7 @@ test() {
 	echo -n $1:
 
 	cpu_measure
-	res=$(iperf3 -c $1 -J -R)
+	res=$(iperf3 --connect-timeout 200 -c $1 -J -R)
 	exitcode=$(echo $?)
 	cpu_measure
 
