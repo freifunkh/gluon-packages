@@ -24,10 +24,18 @@ get_mbps() {
 }
 
 test() {
-	echo -n $1:
+	echo -n "$1: "
+
+	if [ -z "$time" ]; then
+		time=10
+	fi
+
+	if [ -z "$streams" ]; then
+		streams=1
+	fi
 
 	cpu_measure
-	res=$(iperf3 --connect-timeout 200 -c $1 -J -R)
+	res=$(iperf3 --connect-timeout 200 -c $2 -J -R -t $time -P $streams)
 	exitcode=$(echo $?)
 	cpu_measure
 
@@ -36,7 +44,85 @@ test() {
 		return
 	fi
 
-	echo mbits_per_second: $(echo "$res" | get_mbps) Mbit/s \(cpus: $(cpu_count), cpu: $(cpu_results) %\)
+	echo $(echo "$res" | get_mbps) Mbit/s "   " \(cpus: $(cpu_count), cpu: $(cpu_results)%, streams: ${streams}, duration: ${time}s\)
+}
+
+print_nodeinfo() {
+	echo NODEINFO
+	echo ========
+	echo hostname: $(uci get system.@system[0].hostname)
+	echo timestamp: $(date -R)
+	echo domain: $(uci get gluon.core.domain)
+	echo domain_id: $(gluon-show-site | jsonfilter -e '@.hide_domain[0]')
+	echo model: $(jsonfilter -i /etc/board.json -e '@.model.name')
+	cat /proc/cpuinfo | grep "MHz" | tr -d ' ' | cut -d ':' -f 2 | awk -e '{ printf "cpu %02d: %d MHz\n", NR, $1 }'
+	echo
+}
+
+print_neighbours() {
+	echo "BATMAN NEIGHBOURS"
+	echo "================="
+	batctl n -H
+	echo
+}
+
+get_peers() {
+	. /usr/share/libubox/jshn.sh
+	json_load "$(gluon-show-site | jsonfilter -e '@.ffh.speedtest_peers')"
+	json_get_keys sn
+	echo $sn
+}
+
+get_peer_ip6() {
+	gluon-show-site | jsonfilter -e "@.ffh.speedtest_peers.$1.ip6"
+}
+
+header() {
+	if [ "$header_was_print" == "1" ]; then
+		return;
+	fi
+
+	print_nodeinfo
+	print_neighbours
+
+	echo "SPEEDTEST RESULTS"
+	echo "================="
+
+	header_was_print=1
+}
+
+test_all() {
+	for peer_name in $(get_peers); do
+		test ${peer_name} $(get_peer_ip6 ${peer_name})
+	done
+}
+
+test_single() {
+	if ! get_peers | grep $1 > /dev/null; then
+		echo Peer not found: $1
+		exit 1
+	fi
+
+	test $1 $(get_peer_ip6 $1)
+}
+
+print_help() {
+	echo $0 [OPTIONS]
+	echo
+	echo "-a        Do tests for all peers."
+	echo "-H        Do not print the header"
+	echo "-ls       List all peers."
+	echo "-p PEER   Do a test for PEER. Can be specified multiple times."
+	echo "-c IP     Do a test for a custom remote IP."
+	echo "-t        Test duration passed to iperf3 (default: 10s)"
+	echo "-P        Number of parallel connations passed to iperf3 (default: 1)"
+	echo "-h        Print this help"
+}
+
+print_peers() {
+	for peer_name in $(get_peers); do
+		echo ${peer_name}: $(get_peer_ip6 ${peer_name})
+	done
 }
 
 if ! [ -f /usr/bin/iperf3 ]; then
@@ -49,26 +135,38 @@ if ! [ -f /usr/bin/iperf3 ]; then
 	exit 1
 fi
 
-supernode_ips=$(gluon-show-site | jsonfilter -e '@.dns.servers[*]')
+has_arg() {
+	if echo $ARGS | grep '\'$1 > /dev/null; then
+		return 0
+	fi
+	return 1
+}
 
-echo NODEINFO
-echo ========
-echo hostname: $(uci get system.@system[0].hostname)
-echo timestamp: $(date -R)
-echo domain: $(uci get gluon.core.domain)
-echo domain_id: $(gluon-show-site | jsonfilter -e '@.hide_domain[0]')
-echo model: $(jsonfilter -i /etc/board.json -e '@.model.name')
-cat /proc/cpuinfo | grep "MHz" | tr -d ' ' | cut -d ':' -f 2 | awk -e '{ printf "cpu %02d: %d MHz\n", NR, $1 }'
-echo
+get_arg() {
+	echo $ARGS | sed 's_^.*'$1' \([^ ]*\).*$_\1_'
+}
 
-echo "BATMAN NEIGHBOURS"
-echo "================="
-batctl n -H
-echo
+ARGS=$@
 
-echo "SPEEDTEST RESULTS"
-echo "================="
+if has_arg -h; then print_help; exit 0; fi
+if has_arg -H; then header_was_print=1; fi
+if has_arg -t; then time=$(get_arg -t); fi
+if has_arg -P; then streams=$(get_arg -P); fi
 
-for ip in $supernode_ips; do
-	test $ip
+action_done=0
+while [ ! -z $1 ]
+do
+	case "$1" in
+		-h|-H|-t|-P) ;;
+		-ls) print_peers; exit 0;;
+		-c) action_done=1; header; test "[$2]" "$2"; shift;;
+		-p) action_done=1; header; test_single $2; shift;;
+		-a) action_done=1; header; test_all;;
+		*) echo; echo -n "Option $1 is invalid. See help: "; print_help; exit 1;;
+	esac
+	shift
 done
+
+if [ "$action_done" == "0" ]; then
+	print_help
+fi
