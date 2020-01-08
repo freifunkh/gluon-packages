@@ -157,7 +157,8 @@ action_done=0
 while [ ! -z $1 ]
 do
 	case "$1" in
-		-h|-H|-t|-P) ;;
+		-h|-H) ;;
+		-t|-P) shift;;
 		-ls) print_peers; exit 0;;
 		-c) action_done=1; header; test "[$2]" "$2"; shift;;
 		-p) action_done=1; header; test_single $2; shift;;
