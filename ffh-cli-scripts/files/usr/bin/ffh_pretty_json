@@ -1,0 +1,3 @@
+#!/usr/bin/lua
+e = require 'jsonc'
+print(e.stringify(jsonc.parse(io.stdin:read('*all')),true))
