@@ -73,8 +73,8 @@ get_peers() {
 	echo $sn
 }
 
-get_peer_ip6() {
-	gluon-show-site | jsonfilter -e "@.ffh.speedtest_peers.$1.ip6"
+get_peer_host() {
+	gluon-show-site | jsonfilter -e "@.ffh.speedtest_peers.$1.host"
 }
 
 header() {
@@ -93,7 +93,7 @@ header() {
 
 test_all() {
 	for peer_name in $(get_peers); do
-		test ${peer_name} $(get_peer_ip6 ${peer_name})
+		test ${peer_name} $(get_peer_host ${peer_name})
 	done
 }
 
@@ -103,7 +103,7 @@ test_single() {
 		exit 1
 	fi
 
-	test $1 $(get_peer_ip6 $1)
+	test $1 $(get_peer_host $1)
 }
 
 print_help() {
@@ -121,7 +121,7 @@ print_help() {
 
 print_peers() {
 	for peer_name in $(get_peers); do
-		echo ${peer_name}: $(get_peer_ip6 ${peer_name})
+		echo ${peer_name}: $(get_peer_host ${peer_name})
 	done
 }
 
