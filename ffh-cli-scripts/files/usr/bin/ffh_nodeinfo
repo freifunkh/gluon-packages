@@ -54,6 +54,8 @@ for radio in $(uci show wireless 2> /dev/null | grep -e ^wireless.radio | cut -d
 	echo " wifi channel: "$(uci get wireless.${radio}.channel)$(uci_bool gluon-core.@wireless[0].preserve_channels " (preserved)" "")
 done
 
-echo
-echo " wifi clients: $(grep -cEo "\[.*W.*\]+" /sys/kernel/debug/batman_adv/bat0/transtable_local)"
-echo
+if [ -f /sys/kernel/debug/batman_adv/bat0/transtable_local ]; then
+	echo
+	echo " wifi clients: $(grep -cEo "\[.*W.*\]+" /sys/kernel/debug/batman_adv/bat0/transtable_local)"
+	echo
+fi
