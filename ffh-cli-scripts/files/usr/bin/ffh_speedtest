@@ -41,11 +41,13 @@ test() {
 	exitcode=$(echo $?)
 	cpu_measure
 
-	if [ "$jsonisfirst" -eq 1 ]; then
-		echo -n " "
-		jsonisfirst=0
-	else
-		echo -n ","
+	if [ "$jsonoutput" -eq 1 ]; then
+		if [ "$jsonisfirst" -eq 1 ]; then
+			echo -n " "
+			jsonisfirst=0
+		else
+			echo -n ","
+		fi
 	fi
 
 	if [ $exitcode -ne 0 ]; then
