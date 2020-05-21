@@ -24,7 +24,9 @@ get_mbps() {
 }
 
 test() {
-	echo -n "$1: "
+	if [ "$jsonoutput" -eq 0 ]; then
+		echo -n "$1: "
+	fi
 
 	if [ -z "$time" ]; then
 		time=10
@@ -39,12 +41,27 @@ test() {
 	exitcode=$(echo $?)
 	cpu_measure
 
+	if [ "$jsonisfirst" -eq 1 ]; then
+		echo -n " "
+		jsonisfirst=0
+	else
+		echo -n ","
+	fi
+
 	if [ $exitcode -ne 0 ]; then
-		echo failed to connect
+		if [ "$jsonoutput" -eq 0 ]; then
+			echo failed to connect
+		else
+			echo '  "'$1'": { "connection_failed": true }'
+		fi
 		return
 	fi
 
-	echo $(echo "$res" | get_mbps) Mbit/s "   " \(cpus: $(cpu_count), cpu: $(cpu_results)%, streams: ${streams}, duration: ${time}s\)
+	if [ "$jsonoutput" -eq 0 ]; then
+		echo $(echo "$res" | get_mbps) Mbit/s "   " \(cpus: $(cpu_count), cpu: $(cpu_results)%, streams: ${streams}, duration: ${time}s\)
+	else
+		echo '  "'$1'": { "connection_failed": false, "mbps": '$(echo "$res" | get_mbps)', "cpu": '$(cpu_results)', "cpu_cnt": '$(cpu_count)', "duration": '${time}' }'
+	fi
 }
 
 print_nodeinfo() {
@@ -147,18 +164,25 @@ get_arg() {
 }
 
 ARGS=$@
+jsonoutput=0
+jsonisfirst=1
 
 if has_arg -h; then print_help; exit 0; fi
 if has_arg -H; then header_was_print=1; fi
 if has_arg -t; then time=$(get_arg -t); fi
 if has_arg -P; then streams=$(get_arg -P); fi
+if has_arg -j; then header_was_print=1; jsonoutput=1; fi
+
+if [ "$jsonoutput" -eq 1 ]; then
+	echo "{"
+fi
 
 action_done=0
 while [ ! -z $1 ]
 do
 	case "$1" in
 		-h|-H) ;;
-		-t|-P) shift;;
+		-t|-P|-j) shift;;
 		-ls) print_peers; exit 0;;
 		-c) action_done=1; header; test "[$2]" "$2"; shift;;
 		-p) action_done=1; header; test_single $2; shift;;
@@ -167,6 +191,10 @@ do
 	esac
 	shift
 done
+
+if [ "$jsonoutput" -eq 1 ]; then
+        echo "}"
+fi
 
 if [ "$action_done" == "0" ]; then
 	print_help
