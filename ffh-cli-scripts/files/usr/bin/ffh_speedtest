@@ -136,6 +136,7 @@ print_help() {
 	echo "-t        Test duration passed to iperf3 (default: 10s)"
 	echo "-P        Number of parallel connations passed to iperf3 (default: 1)"
 	echo "-h        Print this help"
+	echo "-j        Print results as JSON"
 }
 
 print_peers() {
