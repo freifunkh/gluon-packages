@@ -184,8 +184,8 @@ action_done=0
 while [ ! -z $1 ]
 do
 	case "$1" in
-		-h|-H) ;;
-		-t|-P|-j) shift;;
+		-h|-H|-j) ;;
+		-t|-P) shift;; # this options have an optarg, so we skip the optarg
 		-ls) print_peers; exit 0;;
 		-c) action_done=1; header; test "[$2]" "$2"; shift;;
 		-p) action_done=1; header; test_single $2; shift;;
