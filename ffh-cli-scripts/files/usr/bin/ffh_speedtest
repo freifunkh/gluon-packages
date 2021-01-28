@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# this is adjusted to vxlan+batman
+# vxlan (70) + batman (32) + ip6 (40) + tcp (20)
+MSS=$(lua -e "site=require 'gluon.site'; print(site.mesh_vpn.mtu()-162)")
+
 cpu_measure () {
 	stat=$(cat /proc/stat | grep cpu\ )
 
@@ -19,7 +23,7 @@ cpu_count() {
 }
 
 get_mbps() {
-	bps=$(jsonfilter -e "@.end.streams[0].receiver.bits_per_second")
+	bps=$(jsonfilter -e "@.end.sum_received.bits_per_second")
 	echo "print(math.floor($bps/1024/1024))" | lua
 }
 
@@ -37,7 +41,7 @@ test() {
 	fi
 
 	cpu_measure
-	res=$(iperf3 --connect-timeout 200 -c $2 -J -R -t $time -P $streams)
+	res=$(iperf3 -M "$MSS" --connect-timeout 200 -c $2 -J -R -t $time -P $streams)
 	exitcode=$(echo $?)
 	cpu_measure
 
